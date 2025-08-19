@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold Email Generator - Research Assistant Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Cold Email Generator</h1>
+            <p>Generate professional emails for research assistant applications</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="generator">Email Generator</button>
+            <button class="tab-btn" data-tab="templates">Personal Info</button>
+            <button class="tab-btn" data-tab="history">History</button>
+        </nav>
+
+        <!-- Email Generator Tab -->
+        <div id="generator" class="tab-content active">
+            <form id="emailForm" class="email-form">
+                <div class="form-section">
+                    <h3>Required Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="school">School *</label>
+                        <input type="text" id="school" name="school" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">Grade *</label>
+                        <select id="grade" name="grade" required>
+                            <option value="">Select Grade</option>
+                            <option value="Freshman">Freshman</option>
+                            <option value="Sophomore">Sophomore</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                            <option value="Graduate">Graduate</option>
+                            <option value="PhD">PhD</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="major">Major *</label>
+                        <input type="text" id="major" name="major" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="academic_background">Academic Background *</label>
+                        <textarea id="academic_background" name="academic_background" rows="3" required
+                                  placeholder="Brief description of your academic background..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Optional Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="research_experience">Research Experience</label>
+                        <textarea id="research_experience" name="research_experience" rows="3" 
+                                  placeholder="Describe your research experience..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="skill">Skills</label>
+                        <textarea id="skill" name="skill" rows="2" 
+                                  placeholder="List your relevant skills..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interest_area">Interest Area</label>
+                        <textarea id="interest_area" name="interest_area" rows="2"
+                                  placeholder="Describe your research interests..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Target Labs</h3>
+                    <p class="section-description">Add up to 5 lab websites to generate emails for multiple labs at once</p>
+
+                    <div id="labWebsitesContainer" class="lab-websites-container">
+                        <div class="lab-website-group">
+                            <label for="lab_website_1">Lab Website 1 *</label>
+                            <div class="input-group">
+                                <input type="url" id="lab_website_1" name="lab_website_1" required
+                                       placeholder="https://example.com/lab">
+                                <button type="button" class="btn btn-danger btn-small remove-lab" style="display: none;">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lab-controls">
+                        <button type="button" id="addLabBtn" class="btn btn-secondary btn-small">+ Add Lab</button>
+                        <span class="lab-count">1 / 5 labs</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="saveTemplateBtn" class="btn btn-secondary">Save Personal Information</button>
+                    <button type="submit" id="generateBtn" class="btn btn-primary">Generate Emails</button>
+                </div>
+            </form>
+
+            <div id="loadingIndicator" class="loading hidden">
+                <div class="spinner"></div>
+                <p id="loadingText">Generating your emails...</p>
+                <div id="progressInfo" class="progress-info hidden">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <span id="progressText">Generating email 1 of 3...</span>
+                </div>
+            </div>
+
+            <div id="emailResults" class="email-results hidden">
+                <div class="results-header">
+                    <h3 id="resultsTitle">Generated Emails</h3>
+                    <div class="batch-actions">
+                        <button id="copyAllBtn" class="btn btn-secondary">Copy All</button>
+                        <button id="saveAllBtn" class="btn btn-secondary">Save All to History</button>
+                    </div>
+                </div>
+                <div id="emailResultsList" class="email-results-list">
+                    <!-- Email results will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information Tab -->
+        <div id="templates" class="tab-content">
+            <div class="templates-header">
+                <h3>Saved Personal Information</h3>
+                <button id="clearTemplatesBtn" class="btn btn-danger">Clear All</button>
+            </div>
+            <div id="templatesList" class="templates-list">
+                <!-- Templates will be loaded here -->
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="history-header">
+                <h3>Email History</h3>
+                <button id="clearHistoryBtn" class="btn btn-danger">Clear All</button>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- History will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
