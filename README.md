@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cold Email Generator
 
 一个用于生成研究助理申请邮件的网页应用，集成了Coze工作流API。
@@ -164,3 +165,7 @@ MIT License
 ## 贡献
 
 欢迎提交Issue和Pull Request来改进这个项目！
+=======
+# Cold-email-generator
+generate cold email for inquiry about lab's research assistant positions.
+>>>>>>> cf22a88af96e90a5566a2eb82de1e6c394fc255f
