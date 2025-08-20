@@ -48,6 +48,11 @@ class ColdEmailGenerator {
             this.clearAllHistory();
         });
 
+        // Lab info extraction
+        document.getElementById('extractLabInfoBtn').addEventListener('click', () => {
+            this.extractLabInfo();
+        });
+
         // Lab management
         document.getElementById('addLabBtn').addEventListener('click', () => {
             this.addLabWebsite();
@@ -953,6 +958,164 @@ class ColdEmailGenerator {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    // Lab information extraction functionality
+    async extractLabInfo() {
+        const testLabUrl = document.getElementById('testLabUrl').value.trim();
+        const resultsDiv = document.getElementById('labInfoResults');
+        const extractBtn = document.getElementById('extractLabInfoBtn');
+
+        if (!testLabUrl) {
+            this.showMessage('Please enter a lab URL to test', 'error');
+            return;
+        }
+
+        // Validate URL format
+        try {
+            new URL(testLabUrl);
+        } catch (e) {
+            this.showMessage('Please enter a valid URL (e.g., https://example.com/lab)', 'error');
+            return;
+        }
+
+        // Show loading state
+        extractBtn.disabled = true;
+        extractBtn.textContent = 'Extracting...';
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Extracting lab information from website...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/extract-lab-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    labUrl: testLabUrl
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.labInfo) {
+                this.displayLabInfo(data.labInfo);
+            } else {
+                throw new Error(data.error || 'Failed to extract lab information');
+            }
+
+        } catch (error) {
+            console.error('Error extracting lab info:', error);
+            resultsDiv.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${error.message}
+                    <br><small>Please check the URL and try again, or extract the contact information manually.</small>
+                </div>
+            `;
+        } finally {
+            // Reset button state
+            extractBtn.disabled = false;
+            extractBtn.textContent = 'Extract Info';
+        }
+    }
+
+    displayLabInfo(labInfo) {
+        const resultsDiv = document.getElementById('labInfoResults');
+
+        let emailsHtml = '';
+        if (labInfo.emails && labInfo.emails.length > 0) {
+            emailsHtml = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>📧 Found Emails:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        ${labInfo.emails.map(email => `<li><code>${email}</code></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        let phonesHtml = '';
+        if (labInfo.phones && labInfo.phones.length > 0) {
+            phonesHtml = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>📞 Found Phone Numbers:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        ${labInfo.phones.map(phone => `<li><code>${phone}</code></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        let namesHtml = '';
+        if (labInfo.potentialNames && labInfo.potentialNames.length > 0) {
+            namesHtml = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>👤 Potential Contact Names:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        ${labInfo.potentialNames.map(name => `<li>${name}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        let labNameHtml = '';
+        if (labInfo.labName && labInfo.labName.trim()) {
+            labNameHtml = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>🏛️ Lab Name:</strong> ${labInfo.labName}
+                </div>
+            `;
+        }
+
+        let noteHtml = '';
+        if (labInfo.note) {
+            noteHtml = `
+                <div style="margin-bottom: 1rem; padding: 0.5rem; background: #fff3cd; border-radius: 4px; border: 1px solid #ffeaa7;">
+                    <strong>ℹ️ Note:</strong> ${labInfo.note}
+                </div>
+            `;
+        }
+
+        let errorHtml = '';
+        if (labInfo.error) {
+            errorHtml = `
+                <div style="margin-bottom: 1rem; padding: 0.5rem; background: #ffebee; border-radius: 4px; border: 1px solid #ffcdd2;">
+                    <strong>⚠️ Error:</strong> ${labInfo.error}
+                </div>
+            `;
+        }
+
+        resultsDiv.innerHTML = `
+            <h5 style="color: #1976d2; margin-bottom: 1rem;">🔍 Extraction Results</h5>
+            <div style="margin-bottom: 1rem;">
+                <strong>🌐 URL:</strong> <a href="${labInfo.url}" target="_blank">${labInfo.url}</a>
+            </div>
+            ${labNameHtml}
+            ${emailsHtml}
+            ${phonesHtml}
+            ${namesHtml}
+            ${noteHtml}
+            ${errorHtml}
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #666;">
+                Extracted at: ${new Date(labInfo.extractedAt).toLocaleString()}
+            </div>
+        `;
+
+        // Show success message if we found useful information
+        if ((labInfo.emails && labInfo.emails.length > 0) ||
+            (labInfo.phones && labInfo.phones.length > 0) ||
+            (labInfo.potentialNames && labInfo.potentialNames.length > 0)) {
+            this.showMessage('Lab information extracted successfully! Check the results below.', 'success');
+        } else if (labInfo.note || labInfo.error) {
+            this.showMessage('Lab information extraction completed with notes. Please check manually.', 'info');
+        } else {
+            this.showMessage('No contact information found automatically. Please check the website manually.', 'info');
+        }
     }
 }
 
